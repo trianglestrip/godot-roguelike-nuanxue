@@ -41,6 +41,56 @@
 3. **ECS/组件边界**：物理与渲染相关组件留在 Simulation；技能条件判定读 **组件快照或事件载荷**，不直接 `get_node()` 深扒场景树。
 4. **第三方插件**：只依赖其 **公开 API**；用一层 **Adapter**（薄封装）接入，便于替换（例如行为树从 LimboAI 换为 Beehave 时只改 Adapter）。
 
+### 2.1 文件结构设计（`res://`）
+
+按**功能**划分子目录，避免「全堆在 `src/`」导致耦合。以下为推荐布局；实现时可微调命名，但**数据目录与含逻辑的脚本目录必须分开**。
+
+```
+res://
+├── addons/                    # 第三方插件（GUT、LimboAI、Phantom Camera、GECS 等）
+├── assets/                    # 纯资源：图集、音频、字体、Shader、材质（不含玩法脚本）
+├── data/                      # 仅数据与静态配置（见 2.2）
+│   ├── schemas/               # JSON Schema 或字段约定说明（可选，便于校验）
+│   ├── skills/
+│   ├── relics/
+│   ├── enemies/
+│   ├── waves/
+│   └── drops/
+├── core/                      # 基建：全局单例、生命周期、服务定位接口（薄层）
+├── domain/                    # 领域：规则、公式、技能/圣物/伤害「含义」——无 Node2D、无 `_physics_process`
+├── simulation/                # 模拟：ECS/组件、移动、碰撞、Buff 时间轴、投射物
+├── gameplay/                  # 玩法编排：房间流、波次、胜负、掉落触发（调 Domain，不手写数值）
+├── presentation/              # 表现：UI、VFX、相机 Adapter、音效触发（订阅事件）
+├── scenes/                    # .tscn：薄场景，只做节点拼装与依赖注入
+├── tests/
+│   ├── unit/                  # 纯逻辑单测（Domain、校验器）
+│   └── automation/            # 控制台入口脚本（headless 跑全链路烟测/阶段测）
+└── tools/                     # 编辑器插件、资源管线、CI 用脚本（如 run_tests.ps1）
+```
+
+**约定**
+
+- **`scenes/`**：尽量不写长逻辑；复杂行为放到 `simulation/` / `domain/` 并由场景引用。
+- **`tests/`**：与 `data/`、`domain/` 同层级，避免测试散落在业务目录内难以发现。
+- **`addons/`**：不修改插件内部实现；项目定制放在 `presentation/` 或 `core/` 的 Adapter。
+
+### 2.2 数据与核心逻辑严格分离
+
+| 类别 | 允许出现的位置 | 禁止 |
+|------|----------------|------|
+| **原始数据** | `data/**/*.json`、`data/**/*.csv`、无脚本的 `.tres` 资源 | 在 JSON 内嵌可执行逻辑、或把「公式」写进数据字符串再由 `eval` 执行 |
+| **数据形状校验** | `domain/schema_validator.gd` 或 `core/`，只校验字段与类型 | 校验通过后在同一文件里写战斗表现 |
+| **加载与 ID 解析** | `domain/data_loader.gd`（或 `core/` 薄封装） | Loader 内实现伤害、Buff 等游戏规则 |
+| **游戏规则与数值含义** | `domain/` | Domain 直接 `preload` 具体 `scenes/` 路径 |
+| **世界中的实体行为** | `simulation/` + `presentation/` | 在 `data/` 下放 `.gd` |
+
+**数据流（单向）**
+
+1. 启动或热加载：`data_loader` 读文件 → `schema_validator` → 得到 **不可变配置对象**（Resource 或字典快照）。  
+2. `domain` 根据 ID 与配置构造 **Runtime 对象**（如 `SkillRuntime`），仅含方法与对 EventBus 的订阅声明。  
+3. `simulation` 在每帧或事件中将 **领域决策**（伤害值、是否格挡）应用到实体状态。  
+4. `presentation` 只读事件或只读视图模型，**不回写** Domain 公式。
+
 ---
 
 ## 3. 参考库与分工（做什么 + 为何能解耦）
@@ -65,32 +115,20 @@
 
 ---
 
-## 4. 分阶段里程碑（建议顺序）
+## 4. 分阶段里程碑（概要）
 
-### 阶段 A — 基建清零与可运行空壳
+**详细任务清单、每阶段交付物与「控制台自动化测试」命令见 [task.md](task.md)。** 下表为与调研报告一致的摘要。
 
-- 执行 `scripts/clean_for_plan3_rework.ps1`（先 `-WhatIf` 或备份确认），得到 `EventBus` + 空主场景。
-- 引入 GECS（或备选）与 GUT；主场景能启动、单测能跑。
+| 阶段 | 主题 | 摘要 |
+|------|------|------|
+| 0 | 工程骨架 | 目录落地、`data/` 与逻辑分离、主场景可启动、`tests/automation/run_all.gd` 烟测通过 |
+| A | 基建 | EventBus、数据校验、GUT/ECS 引入 |
+| B | 实时战斗 | 移动/冲刺/无敌帧、Hitbox、Hit Stop、Domain 伤害单测 |
+| C | 技能与圣物 | 全数据驱动、EventBus 订阅、四槽圣物 |
+| D | 关卡与成长 | 房间/波次、精英、掉落 |
+| E | 打磨 | 热调工具、全量回归 |
 
-### 阶段 B — 实时战斗核心
-
-- 角色移动、冲刺、无敌帧；Hitbox/Hurtbox、伤害上下文结构体。
-- EventBus 事件与 Phantom Camera 震动联动（Adapter）。
-- Hit Stop：时间缩放服务，**单一入口**（避免各处改 `Engine.time_scale`）。
-
-### 阶段 C — 技能与圣物引擎
-
-- JSON → Resource 管线；`on_cast` / `on_hit` / `on_kill` 等订阅 EventBus。
-- 四槽圣物：**槽位仅影响属性映射表**，逻辑在 Domain 单模块。
-
-### 阶段 D — 关卡与成长
-
-- 房间图、波次、精英标记；掉落表与 EventBus `enemy_killed` 挂钩。
-
-### 阶段 E — 打磨与扩展
-
-- 本地多人（若做）：输入设备抽象 + 分屏或同屏，**不**与技能引擎耦合。
-- 调试控制台：热加载 JSON（仅开发版）。
+每个阶段结束时：**必须**执行 [task.md](task.md) 中的控制台测试（退出码 0）后再进入下一阶段。
 
 ---
 
@@ -100,13 +138,15 @@
 
 ---
 
-## 6. 仓库内脚本与分支
+## 6. 仓库脚本与分支
 
 | 路径 | 说明 |
 |------|------|
-| `scripts/clean_for_plan3_rework.ps1` | 备份 `src`/`scenes`/`automation` 至 `_plan3_archive/<时间戳>/`，写入最小桩并更新 `project.godot` |
-| `scripts/plan3/bootstrap/` | 清理后复制的模板（`event_bus.gd`、`main.tscn`、`project.godot.snippet`） |
+| `tools/run_tests.ps1` | （工程落地后）封装 Godot headless 执行 `tests/automation/run_all.gd`，供本地与 CI |
+| `docs/task.md` | 分阶段任务、验收标准、控制台测试约定 |
 | 分支 `rework/plan3-full-rework` | 方案三开发与评审用主线 |
+
+历史清理脚本若曾存在于 `scripts/plan3/`，可从 `main` 分支或 Git 历史中恢复；当前分支以文档与后续新建工程为准。
 
 ---
 

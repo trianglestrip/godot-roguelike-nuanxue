@@ -4,3 +4,4 @@
 
 - [调研与差距分析](docs/deep-research-report.md)
 - [Full Rework 执行计划](docs/plan3-full-rework.md)
+- [分阶段任务与控制台测试](docs/task.md)
