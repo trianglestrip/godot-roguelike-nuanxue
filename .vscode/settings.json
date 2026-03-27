@@ -1,9 +1,0 @@
-{
-  "workbench.colorCustomizations": {
-    "titleBar.activeBackground": "#435368"
-  },
-  "files.exclude": {
-    "**/*.uid": true
-  },
-  "godotTools.editorPath.godot4": "d:\\project\\godot\\Godot_v4.6.1-stable_win64.exe"
-}

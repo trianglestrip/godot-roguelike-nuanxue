@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="Script" path="res://automation/phases/phase_d/test_phase_d.gd" id="1_script"]
-
-[node name="PhaseDTest" type="Node"]
-script = ExtResource("1_script")
