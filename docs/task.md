@@ -8,29 +8,45 @@
 
 ### 环境
 
-- **Godot 4.x** 可执行文件需在 `PATH` 中，或通过环境变量指定：
-  - Windows PowerShell：`$env:GODOT = "C:\Path\To\Godot_v4.x.exe"`
+- **Godot 4.6.x 控制台版**（无界面自动化）：默认路径 `D:\project\godot\Godot_v4.6.1-stable_win64_console.exe`（可在 `tools/run_tests.ps1` 或环境变量中覆盖）。
+  - Windows PowerShell 覆盖：`$env:GODOT = "D:\path\to\Godot_v4.x_console.exe"`
 - 项目根目录即仓库根（含 `project.godot`）。
 
-### 统一入口（工程落地后实现）
+### 统一入口（已实现：阶段 0 / A / B）
 
 | 路径 | 作用 |
 |------|------|
-| `tests/automation/run_all.gd` | 总入口：依次执行各阶段注册的测试套件，汇总退出码 |
-| `tests/automation/phase_a.gd` … `phase_e.gd` | 各阶段专用测试（或同文件内按阶段注册） |
-| `tools/run_tests.ps1` | 封装调用 Godot，便于 CI / 本地一键执行 |
+| `tests/automation/run_all.gd` | 总入口：依次执行阶段 0、A、B 测试，失败则 `quit(1)` |
+| `tests/automation/phase_0_tests.gd` | 阶段 0 烟测 |
+| `tests/automation/phase_a_tests.gd` | 阶段 A：Schema、DataLoader、EventBus |
+| `tests/automation/phase_b_tests.gd` | 阶段 B：伤害、冲刺无敌、层、HitStop、CameraAdapter |
+| `tools/run_tests.ps1` | 封装 Godot；参数 `-Phase all`（默认）、`0`、`a`、`b` |
 
-### 推荐命令（实现测试脚本后使用）
+### 推荐命令
 
 在仓库根目录执行（PowerShell，多条命令请分开执行）：
 
 ```powershell
-$env:GODOT = "godot"
-& $env:GODOT --headless --path . -s res://tests/automation/run_all.gd
+Set-Location "d:\project\nuanxue\godot-roguelike-nuanxue"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_tests.ps1 -Phase all
+```
+
+仅跑某一阶段（内部会传 `-- --test-phase=...`）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_tests.ps1 -Phase 0
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_tests.ps1 -Phase a
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_tests.ps1 -Phase b
+```
+
+或直接调用 Godot：
+
+```powershell
+& "D:\project\godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path . -s "res://tests/automation/run_all.gd" -- --test-phase=a
 ```
 
 - 成功：进程退出码 **0**。
-- 失败：非 0，并在 stderr / 引擎日志中输出失败用例名。
+- 失败：非 0，并在日志中 `push_error` 失败说明。
 
 ### 阶段完成判定
 
@@ -129,9 +145,9 @@ $env:GODOT = "godot"
 
 | 阶段 | 目录/基建 | 控制台测试 | 完成日期 |
 |------|-----------|------------|----------|
-| 0 | ☐ | ☐ | |
-| A | ☐ | ☐ | |
-| B | ☐ | ☐ | |
+| 0 | ☑ | ☑ | 2026-03 |
+| A | ☑ | ☑ | 2026-03 |
+| B | ☑ | ☑ | 2026-03 |
 | C | ☐ | ☐ | |
 | D | ☐ | ☐ | |
 | E | ☐ | ☐ | |
