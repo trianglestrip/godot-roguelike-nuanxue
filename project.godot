@@ -15,7 +15,8 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Godot Roguelike Example"
-run/main_scene="res://scenes/menu/main_menu.tscn"
+run/main_scene="res://scenes/realtime/realtime_game.tscn"
+run/max_fps=60
 config/features=PackedStringArray("4.6", "GL Compatibility")
 boot_splash/bg_color=Color(0.0852449, 0.0852449, 0.0852449, 1)
 
@@ -63,7 +64,7 @@ theme/default_font_antialiasing=0
 theme/default_font_hinting=0
 theme/default_font_subpixel_positioning=0
 theme/default_font_multichannel_signed_distance_field=true
-theme/custom_font="uid://drct7kk8ym7g7"
+theme/custom_font="uid://bjm2dx1whn14t"
 
 [input]
 
@@ -98,13 +99,11 @@ move_right={
 }
 move_up_left={
 "deadzone": 0.5,
-"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":81,"key_label":0,"unicode":113,"location":0,"echo":false,"script":null)
-]
+"events": []
 }
 move_up_right={
 "deadzone": 0.5,
-"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":69,"key_label":0,"unicode":101,"location":0,"echo":false,"script":null)
-]
+"events": []
 }
 move_down_left={
 "deadzone": 0.5,
@@ -227,9 +226,14 @@ toggle_equipment={
 ]
 }
 
+[gameplay]
+
+realtime_enabled=true
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+2d/snap/snap_2d_transforms_to_pixel=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true

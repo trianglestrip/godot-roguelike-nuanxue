@@ -315,7 +315,7 @@ def main():
         print(f"Error: DawnLike Characters directory not found: {CHARACTERS_DIR}")
         print()
         print("The DawnLike tileset is required to run this script.")
-        print("Please follow the setup instructions in the main project README.md")
+        print("Please follow the setup instructions in docs/README.md")
         print("to download and install the DawnLike tileset.")
         print()
         sys.exit(1)

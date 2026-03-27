@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://wuxingcombat01"]
+
+[ext_resource type="Script" path="res://automation/phases/phase_wuxing_combat/test_wuxing_combat.gd" id="1_script"]
+
+[node name="TestWuxingCombat" type="Node"]
+script = ExtResource("1_script")

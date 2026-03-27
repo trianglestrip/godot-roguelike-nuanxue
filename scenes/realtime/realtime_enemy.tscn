@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://b7rtenemy001"]
+
+[ext_resource type="Script" path="res://src/realtime/realtime_enemy.gd" id="1_enemy"]
+
+[sub_resource type="RectangleShape2D" id="Rect_body"]
+size = Vector2(12, 12)
+
+[sub_resource type="RectangleShape2D" id="Rect_hurt"]
+size = Vector2(14, 14)
+
+[node name="RealtimeEnemy" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_enemy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Rect_body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+monitorable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("Rect_hurt")
