@@ -1,6 +1,34 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scenes/bootstrap/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/playtest/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/playtest/dummy_enemy.tscn" id="3_dummy"]
+[ext_resource type="Script" path="res://gameplay/playtest_hud.gd" id="4_hud"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
+
+[node name="ArenaBg" type="Polygon2D" parent="."]
+z_index = -100
+color = Color(0.09, 0.07, 0.12, 1)
+polygon = PackedVector2Array(0, 0, 576, 0, 576, 324, 0, 324)
+
+[node name="Playfield" type="Node2D" parent="."]
+
+[node name="Player" parent="Playfield" instance=ExtResource("2_player")]
+position = Vector2(140, 162)
+
+[node name="DummyEnemy" parent="Playfield" instance=ExtResource("3_dummy")]
+position = Vector2(420, 162)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 128
+script = ExtResource("4_hud")
+
+[node name="Label" type="Label" parent="HUD"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 560.0
+offset_bottom = 72.0
+theme_override_font_sizes/font_size = 13
+text = "WASD 移动  |  Space 冲刺  |  J 攻击"

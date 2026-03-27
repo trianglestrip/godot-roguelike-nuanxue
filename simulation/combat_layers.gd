@@ -20,3 +20,16 @@ static func hitbox_collision_mask() -> int:
 ## Hurtbox 通常与 World / Hitbox 交互策略由项目定；单测只校验位运算一致性。
 static func hurtbox_collision_layer() -> int:
 	return layer_bit(LAYER_HURTBOX)
+
+
+## 供 Area2D 直接赋值：`collision_layer = ...`
+static func hitbox_layer_bits() -> int:
+	return layer_bit(LAYER_HITBOX)
+
+
+static func hurtbox_layer_bits() -> int:
+	return layer_bit(LAYER_HURTBOX)
+
+
+static func world_layer_bits() -> int:
+	return layer_bit(LAYER_WORLD)

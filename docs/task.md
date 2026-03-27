@@ -20,6 +20,7 @@
 | `tests/automation/phase_0_tests.gd` | 阶段 0 烟测 |
 | `tests/automation/phase_a_tests.gd` | 阶段 A：Schema、DataLoader、EventBus |
 | `tests/automation/phase_b_tests.gd` | 阶段 B：伤害、冲刺无敌、层、HitStop、CameraAdapter |
+| `simulation/hitbox_2d.gd`、`simulation/hurtbox_2d.gd` | 真实 Area2D 碰撞（试玩场景 `scenes/bootstrap/main.tscn`） |
 | `tools/run_tests.ps1` | 封装 Godot；参数 `-Phase all`（默认）、`0`、`a`、`b` |
 
 ### 推荐命令

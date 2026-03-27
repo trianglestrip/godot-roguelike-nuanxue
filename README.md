@@ -16,3 +16,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run_tests.ps1 -Phase
 ```
 
 退出码 `0` 表示通过；`-Phase` 可取 `all`、`0`、`a`、`b`。
+
+## 编辑器试玩（真实 Hitbox / Hurtbox）
+
+- 用 Godot 打开本仓库，运行主场景 `scenes/bootstrap/main.tscn`（已在 `project.godot` 设为启动场景）。
+- **WASD** 移动，**Space** 冲刺（短暂无敌，关闭 `Hurtbox`），**J** 近战挥击（生成 `SwingHitbox` / `Hitbox2D`）。
+- 右侧 **木桩** 带 `Hurtbox2D`，受击扣血；攻击判定与层掩码见 `simulation/combat_layers.gd` 与 `project.godot` 的 `layer_names`。
